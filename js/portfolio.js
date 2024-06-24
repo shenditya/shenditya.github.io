@@ -1,5 +1,5 @@
 /*!
-* Copyright 2014 Shendy Aditya S
+* Copyright 2024 Shendy Aditya S
 */ 
 
 
@@ -9,7 +9,7 @@ const portfolioData = [
     {
         "id": 1,
         "modalId": "portfolioModal1",
-        "title": "(iOS) JakLingko SuperApp",
+        "title": "JakLingko SuperApp",
         "imgSrc": "assets/img/portfolio/jaklingko1.png",
         "text": "<p><b>Language &amp; Technology:</b> Swift, REST, RxSwift, Moya, CoreNFC, UIKit, MVVM.</p> <p>PT. JakLingko Indonesia.</p>",
         "images": [
@@ -20,7 +20,7 @@ const portfolioData = [
     {
         "id": 2,
         "modalId": "portfolioModal2",
-        "title": "(iOS) mCampus",
+        "title": "mCampus",
         "imgSrc": "assets/img/portfolio/mcampus1.png",
         "text": "<p><b>Language &amp; Technology:</b> Swift, REST, RxSwift, Moya, UIKit, MVVM.</p> <p> PT. Solusi Kampus Indonesia.</p>",
         "images": [
@@ -31,7 +31,7 @@ const portfolioData = [
     {
         "id": 3,
         "modalId": "portfolioModal3",
-        "title": "(iOS) Safe Travel ",
+        "title": "Safe Travel ",
         "imgSrc": "assets/img/portfolio/safetravel1.png",
         "text": "<p><b>Language &amp; Technology:</b> Swift, REST, UIKit, MVC.</p> <p> MINISTRY OF FOREIGN AFFAIRS OF THE REPUBLIC OF INDONESIA.</p>",
         "images": [
@@ -43,7 +43,7 @@ const portfolioData = [
     {
         "id": 4,
         "modalId": "portfolioModal4",
-        "title": "Solo Destination (iOS)",
+        "title": "Solo Destination",
         "imgSrc": "assets/img/portfolio/soldes1.png",
         "text": "<p><b>Language &amp; Technology:</b> Swift, REST, UIKit, MVC.</p> <p>  Dinas Komunikasi, Informatika, Statistik dan Persandian Kota Surakarta.</p>",
         "images": [
@@ -55,7 +55,7 @@ const portfolioData = [
     {
         "id": 5,
         "modalId": "portfolioModal5",
-        "title": "Jogja Istimewa (iOS)",
+        "title": "Jogja Istimewa",
         "imgSrc": "assets/img/portfolio/jogjis.jpeg",
         "text": "<p><b>Language &amp; Technology:</b> Swift, REST, UIKit, MVC.</p> <p> Pemerintah Daerah Istimewa Yogyakarta.</p>",
         "images": [
@@ -65,7 +65,7 @@ const portfolioData = [
     {
         "id": 6,
         "modalId": "portfolioModal6",
-        "title": "PIHPS Harga Pangan (iOS)",
+        "title": "PIHPS Harga Pangan",
         "imgSrc": "assets/img/portfolio/pihps.jpeg",
         "text": "<p><b>Language &amp; Technology:</b> Swift, REST, UIKit, MVC.</p> <p> Central Bank of Indonesia.</p>",
         "images": [
