@@ -11,7 +11,7 @@ const portfolioData = [
         "modalId": "portfolioModal1",
         "title": "JakLingko SuperApp",
         "imgSrc": "assets/img/portfolio/jaklingko1.png",
-        "text": "<p><b>Language &amp; Technology:</b> Swift, REST, RxSwift, Moya, CoreNFC, UIKit, MVVM.</p> <p>PT. JakLingko Indonesia.</p>",
+        "text": "<p><b>Language &amp; Technology:</b> Swift, REST, RxSwift, GoogleMap, GooglePlaces, Moya, CoreNFC, UIKit, MVVM.</p> <p>PT. JakLingko Indonesia.</p>",
         "images": [
             "assets/img/portfolio/jaklingko1.png",
             "assets/img/portfolio/jaklingko2.png"
@@ -33,7 +33,7 @@ const portfolioData = [
         "modalId": "portfolioModal3",
         "title": "Safe Travel ",
         "imgSrc": "assets/img/portfolio/safetravel1.png",
-        "text": "<p><b>Language &amp; Technology:</b> Swift, REST, UIKit, MVC.</p> <p> MINISTRY OF FOREIGN AFFAIRS OF THE REPUBLIC OF INDONESIA.</p>",
+        "text": "<p><b>Language &amp; Technology:</b> Swift, REST, UIKit, MapKit, MVC.</p> <p> MINISTRY OF FOREIGN AFFAIRS OF THE REPUBLIC OF INDONESIA.</p>",
         "images": [
             "assets/img/portfolio/safetravel1.png",
             "assets/img/portfolio/safetravel2.png",
@@ -45,7 +45,7 @@ const portfolioData = [
         "modalId": "portfolioModal4",
         "title": "Solo Destination",
         "imgSrc": "assets/img/portfolio/soldes1.png",
-        "text": "<p><b>Language &amp; Technology:</b> Swift, REST, UIKit, MVC.</p> <p>  Dinas Komunikasi, Informatika, Statistik dan Persandian Kota Surakarta.</p>",
+        "text": "<p><b>Language &amp; Technology:</b> Swift, REST, UIKit, MapKit, MVC.</p> <p>  Dinas Komunikasi, Informatika, Statistik dan Persandian Kota Surakarta.</p>",
         "images": [
             "assets/img/portfolio/soldes1.png",
             "assets/img/portfolio/soldes2.png",
@@ -57,7 +57,7 @@ const portfolioData = [
         "modalId": "portfolioModal5",
         "title": "Jogja Istimewa",
         "imgSrc": "assets/img/portfolio/jogjis.jpeg",
-        "text": "<p><b>Language &amp; Technology:</b> Swift, REST, UIKit, MVC.</p> <p> Pemerintah Daerah Istimewa Yogyakarta.</p>",
+        "text": "<p><b>Language &amp; Technology:</b> Swift, REST, UIKit, MapKit, MVC.</p> <p> Pemerintah Daerah Istimewa Yogyakarta.</p>",
         "images": [
             "assets/img/portfolio/jogjis.jpeg"
         ]
