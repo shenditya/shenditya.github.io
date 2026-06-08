@@ -1,0 +1,551 @@
+/* ===========================================================
+   Shendy's World — RETRO PIXEL EDITION
+   16-bit dusk metro city: layered building skyline, lit windows,
+   street-level shops & food stalls, RPG dialog-box UI.
+   =========================================================== */
+:root{
+  /* dusk sky ramp */
+  --sky-1:#39265e;  /* top deep purple   */
+  --sky-2:#6a3a83;  /* purple            */
+  --sky-3:#a8497f;  /* magenta           */
+  --sky-4:#d06a86;  /* pink              */
+  --sky-5:#e89a84;  /* warm horizon      */
+
+  --gold:#e9c84e;
+  --gold-hi:#f4de7c;
+  --gold-lo:#cf9f2c;
+  --magenta:#c45a8f;
+
+  --panel:#241a3a;       /* dialog bg          */
+  --panel-2:#2e2350;     /* dialog bg lighter  */
+  --panel-edge:#0e0a1d;  /* dark pixel border  */
+  --panel-hi:#5d4a92;    /* light inner border */
+  --cream:#f4ead4;       /* parchment text     */
+  --cream-dim:#c8b9d6;
+
+  --grape:#6b46d9;       /* accent (tweakable) */
+  --grape-deep:#5436b8;
+  --coin:#ffcf3a;
+  --coin-edge:#b9831a;
+
+  --player-screen-x:26%;
+  --ground-h:22vh;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:auto;}
+body{
+  font-family:"Nunito",system-ui,sans-serif;
+  color:var(--cream);
+  background:var(--sky-1);
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+.pixel{font-family:"Press Start 2P",monospace;}
+img{image-rendering:pixelated;}
+
+/* The scroll spacer drives the camera; the stage is fixed.
+   pointer-events:none so it never intercepts clicks on the stage. */
+#scroll-track{height:500vh;position:relative;pointer-events:none;}
+
+#stage{
+  position:fixed;inset:0;overflow:hidden;
+  background:linear-gradient(180deg,
+    var(--sky-1) 0%, var(--sky-2) 30%, var(--sky-3) 55%,
+    var(--sky-4) 74%, var(--sky-5) 90%);
+}
+
+/* ---- Parallax layers ---- */
+.layer{position:absolute;left:0;top:0;height:100%;}
+.layer.bg{
+  left:0;right:0;width:100%;
+  background-repeat:repeat-x;
+  image-rendering:pixelated;
+  will-change:background-position;
+}
+/* clouds — pixel-art puffs (160x46 grid → upscaled blocky) */
+#layer-sky{top:0;height:200px;
+  image-rendering:pixelated;
+  background-repeat:repeat-x;
+  background-size:640px 184px;
+  background-position:0 24px;
+  background-image:url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' width='160' height='46' shape-rendering='crispEdges'>\
+<g fill='%23ffffff' opacity='0.92'>\
+<rect x='14' y='14' width='30' height='8'/>\
+<rect x='10' y='18' width='40' height='6'/>\
+<rect x='20' y='9' width='14' height='6'/>\
+<rect x='30' y='11' width='12' height='5'/>\
+<rect x='96' y='28' width='34' height='7'/>\
+<rect x='92' y='32' width='44' height='6'/>\
+<rect x='104' y='23' width='16' height='6'/>\
+<rect x='114' y='25' width='12' height='5'/>\
+</g>\
+<g fill='%23dfe7f2' opacity='0.9'>\
+<rect x='10' y='22' width='40' height='3'/>\
+<rect x='92' y='36' width='44' height='3'/>\
+</g></svg>");}
+/* far city skyline — pixel-art tower silhouettes.
+   SVG drawn on a small 130x80 grid then upscaled blocky via image-rendering:pixelated. */
+#layer-far{top:auto;bottom:calc(var(--ground-h) - 8px);height:320px;opacity:.9;
+  image-rendering:pixelated;
+  background-repeat:repeat-x;
+  background-size:520px 320px;
+  background-position:0 bottom;
+  background-image:url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' width='130' height='80' shape-rendering='crispEdges'>\
+<g fill='%235b6b8c'>\
+<rect x='0' y='38' width='18' height='42'/>\
+<rect x='22' y='22' width='14' height='58'/>\
+<rect x='41' y='45' width='23' height='35'/>\
+<rect x='68' y='15' width='12' height='65'/>\
+<rect x='86' y='32' width='20' height='48'/>\
+<rect x='111' y='25' width='15' height='55'/>\
+</g>\
+<g fill='%234a587a'>\
+<rect x='0' y='38' width='3' height='42'/><rect x='22' y='22' width='3' height='58'/>\
+<rect x='41' y='45' width='3' height='35'/><rect x='68' y='15' width='3' height='65'/>\
+<rect x='86' y='32' width='3' height='48'/><rect x='111' y='25' width='3' height='55'/>\
+</g>\
+<g fill='%23ffe9a8'>\
+<rect x='26' y='28' width='2' height='3'/><rect x='30' y='28' width='2' height='3'/>\
+<rect x='26' y='34' width='2' height='3'/><rect x='30' y='34' width='2' height='3'/>\
+<rect x='71' y='22' width='2' height='3'/><rect x='75' y='22' width='2' height='3'/>\
+<rect x='71' y='30' width='2' height='3'/><rect x='75' y='30' width='2' height='3'/>\
+<rect x='114' y='32' width='2' height='3'/><rect x='119' y='32' width='2' height='3'/>\
+</g></svg>");}
+
+/* near city blocks — pixel-art lit buildings (170x120 grid → x4) */
+#layer-mid{top:auto;bottom:calc(var(--ground-h) - 8px);height:480px;
+  image-rendering:pixelated;
+  background-repeat:repeat-x;
+  background-size:680px 480px;
+  background-position:0 bottom;
+  background-image:url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' width='170' height='120' shape-rendering='crispEdges'>\
+<g fill='%2339456b'>\
+<rect x='0' y='40' width='38' height='80'/>\
+<rect x='43' y='17' width='27' height='103'/>\
+<rect x='75' y='50' width='45' height='70'/>\
+<rect x='125' y='30' width='33' height='90'/>\
+</g>\
+<g fill='%232c3556'>\
+<rect x='0' y='40' width='4' height='80'/><rect x='43' y='17' width='4' height='103'/>\
+<rect x='75' y='50' width='4' height='70'/><rect x='125' y='30' width='4' height='90'/>\
+</g>\
+<g fill='%23ffe09a'>\
+<rect x='48' y='24' width='3' height='4'/><rect x='54' y='24' width='3' height='4'/><rect x='60' y='24' width='3' height='4'/>\
+<rect x='48' y='33' width='3' height='4'/><rect x='54' y='33' width='3' height='4'/><rect x='60' y='33' width='3' height='4'/>\
+<rect x='48' y='42' width='3' height='4'/><rect x='60' y='42' width='3' height='4'/>\
+<rect x='130' y='37' width='3' height='4'/><rect x='136' y='37' width='3' height='4'/><rect x='142' y='37' width='3' height='4'/>\
+<rect x='130' y='46' width='3' height='4'/><rect x='142' y='46' width='3' height='4'/>\
+<rect x='85' y='57' width='3' height='4'/><rect x='93' y='57' width='3' height='4'/><rect x='101' y='57' width='3' height='4'/>\
+<rect x='85' y='66' width='3' height='4'/><rect x='101' y='66' width='3' height='4'/>\
+</g></svg>");}
+
+/* street-level shops & food stalls — pixel-art metro storefronts (140x45 grid → x4) */
+#layer-fore{top:auto;bottom:calc(var(--ground-h) - 18px);height:180px;
+  image-rendering:pixelated;
+  background-repeat:repeat-x;
+  background-size:560px 180px;
+  background-position:0 bottom;
+  background-image:url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' width='140' height='45' shape-rendering='crispEdges'>\
+<rect x='0' y='17' width='38' height='28' fill='%237a4a3a'/>\
+<rect x='40' y='13' width='33' height='32' fill='%234a6b5a'/>\
+<rect x='75' y='18' width='38' height='27' fill='%236a5a8a'/>\
+<rect x='115' y='15' width='25' height='30' fill='%238a6a3a'/>\
+<g>\
+<rect x='0' y='15' width='38' height='4' fill='%23e23b3b'/>\
+<rect x='40' y='11' width='33' height='4' fill='%23f0a020'/>\
+<rect x='75' y='16' width='38' height='4' fill='%23e23b3b'/>\
+<rect x='115' y='13' width='25' height='4' fill='%2330a070'/>\
+</g>\
+<g fill='%23fff4cf'>\
+<rect x='5' y='24' width='10' height='10'/><rect x='22' y='24' width='10' height='10'/>\
+<rect x='46' y='20' width='9' height='11'/><rect x='60' y='20' width='9' height='11'/>\
+<rect x='80' y='25' width='10' height='9'/><rect x='98' y='25' width='10' height='9'/>\
+<rect x='120' y='21' width='9' height='10'/>\
+</g></svg>");}
+
+/* Ground band */
+#ground{position:absolute;left:0;bottom:0;width:100%;height:var(--ground-h);
+  background:#3a3a3a;box-shadow:inset 0 6px 0 rgba(0,0,0,.25);}
+/* Asphalt texture overlay */
+#ground::before{
+  content:"";position:absolute;inset:0;
+  background:radial-gradient(circle,rgba(255,255,255,.03) 0,transparent 1px),
+             radial-gradient(circle,rgba(255,255,255,.04) 0,transparent 1px),
+             radial-gradient(circle,rgba(0,0,0,.06) 0,transparent 1.5px);
+  background-size:12px 8px, 20px 14px, 16px 10px;
+  pointer-events:none;
+}
+/* Road lane dashes on asphalt */
+.road-lines{
+  position:absolute;left:0;right:0;bottom:calc(var(--ground-h)*0.36);height:5px;z-index:2;
+  background:repeating-linear-gradient(90deg,rgba(255,255,255,.75) 0,rgba(255,255,255,.75) 48px,transparent 48px,transparent 96px);
+}
+
+/* time-of-day tweaks */
+body.tod-day  #stage{background:linear-gradient(180deg,#3f6fb0 0%,#6ba0d6 38%,#bcd0e8 70%,#e9d6c0 92%);}
+body.tod-day  .layer.bg{filter:saturate(.9) brightness(1.12);}
+body.tod-night #stage{background:linear-gradient(180deg,#0c1130 0%,#1a1f47 45%,#2c2a5e 72%,#41355f 92%);}
+body.tod-night .layer.bg{filter:brightness(.55) saturate(.85);}
+body.tod-night #ground{filter:brightness(.6);}
+
+/* ---------------- Player (office_man sprite) ---------------- */
+#player{
+  position:absolute;bottom:calc(var(--ground-h) - 10px);
+  left:var(--player-screen-x);transform:translateX(-50%) scaleX(1);
+  width:128px;height:128px;z-index:30;transform-origin:bottom center;
+  cursor:pointer;
+}
+#player.face-left{transform:translateX(-50%) scaleX(-1);}
+.p-sprite{position:absolute;left:0;bottom:0;width:128px;height:128px;
+  image-rendering:pixelated;}
+.p-shadow{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);
+  width:78px;height:13px;background:rgba(10,6,20,.4);border-radius:50%;filter:blur(1px);}
+
+/* ---- Sprite sheet setup per animation state ---- */
+.p-sprite{
+  background:url("assets/office_man/Idle.png") no-repeat 0 0;
+  background-size:768px 128px;
+  animation:manIdle .9s steps(1) infinite;
+}
+
+/* 6-frame idle (768x128 strip) */
+@keyframes manIdle{
+  0%{background-position:0px 0px}
+  16.67%{background-position:-128px 0px}
+  33.33%{background-position:-256px 0px}
+  50%{background-position:-384px 0px}
+  66.67%{background-position:-512px 0px}
+  83.33%{background-position:-640px 0px}
+  100%{background-position:0px 0px}
+}
+
+/* 10-frame walk (1280x128 strip) */
+#player.walking .p-sprite{
+  background:url("assets/office_man/Walk.png") no-repeat 0 0;
+  background-size:1280px 128px;
+  animation:manWalk .6s steps(1) infinite;
+}
+@keyframes manWalk{
+  0%{background-position:0px 0px}
+  10%{background-position:-128px 0px}
+  20%{background-position:-256px 0px}
+  30%{background-position:-384px 0px}
+  40%{background-position:-512px 0px}
+  50%{background-position:-640px 0px}
+  60%{background-position:-768px 0px}
+  70%{background-position:-896px 0px}
+  80%{background-position:-1024px 0px}
+  90%{background-position:-1152px 0px}
+  100%{background-position:0px 0px}
+}
+
+/* 10-frame run (1280x128 strip) */
+#player.running .p-sprite{
+  background:url("assets/office_man/Run.png") no-repeat 0 0;
+  background-size:1280px 128px;
+  animation:manRun .45s steps(1) infinite;
+}
+@keyframes manRun{
+  0%{background-position:0px 0px}
+  10%{background-position:-128px 0px}
+  20%{background-position:-256px 0px}
+  30%{background-position:-384px 0px}
+  40%{background-position:-512px 0px}
+  50%{background-position:-640px 0px}
+  60%{background-position:-768px 0px}
+  70%{background-position:-896px 0px}
+  80%{background-position:-1024px 0px}
+  90%{background-position:-1152px 0px}
+  100%{background-position:0px 0px}
+}
+
+/* 4-frame attack (512x128 strip) — plays once */
+#player.attacking .p-sprite{
+  background:url("assets/office_man/Attack.png") no-repeat 0 0;
+  background-size:512px 128px;
+  animation:manAttack .5s steps(1) 1;
+}
+@keyframes manAttack{
+  0%{background-position:0px 0px}
+  25%{background-position:-128px 0px}
+  50%{background-position:-256px 0px}
+  75%{background-position:-384px 0px}
+  100%{background-position:0px 0px}
+}
+
+/* 3-frame hurt (384x128 strip) — plays once */
+#player.hurt .p-sprite{
+  background:url("assets/office_man/Hurt.png") no-repeat 0 0;
+  background-size:384px 128px;
+  animation:manHurt .4s steps(1) 1;
+}
+@keyframes manHurt{
+  0%{background-position:0px 0px}
+  33.33%{background-position:-128px 0px}
+  66.67%{background-position:-256px 0px}
+  100%{background-position:0px 0px}
+}
+
+/* 5-frame dead (640x128 strip) — plays once, stays on last frame */
+#player.dead .p-sprite{
+  background:url("assets/office_man/Dead.png") no-repeat 0 0;
+  background-size:640px 128px;
+  animation:manDead .65s steps(1) 1 forwards;
+}
+@keyframes manDead{
+  0%{background-position:0px 0px}
+  20%{background-position:-128px 0px}
+  40%{background-position:-256px 0px}
+  60%{background-position:-384px 0px}
+  80%{background-position:-512px 0px}
+  100%{background-position:-512px 0px}
+}
+
+/* Jump — uses idle sprite, body animated vertically */
+#player.jumping .p-sprite{
+  background:url("assets/office_man/Idle.png") no-repeat 0 0;
+  background-size:768px 128px;
+  animation:manJump var(--jump-dur,560ms) steps(1) 1;
+}
+@keyframes manJump{
+  0%{background-position:0px 0px}
+  33%{background-position:-256px 0px}
+  66%{background-position:-384px 0px}
+  100%{background-position:0px 0px}
+}
+
+/* Jump vertical — animates bottom so it never fights the facing flip */
+@keyframes playerJump{
+  0%{bottom:calc(var(--ground-h) - 6px)}
+  38%{bottom:calc(var(--ground-h) - 6px + var(--jump-h,130px))}
+  62%{bottom:calc(var(--ground-h) - 6px + var(--jump-h,130px))}
+  100%{bottom:calc(var(--ground-h) - 6px)}
+}
+#player.jump-arc{animation:playerJump var(--jump-dur,560ms) cubic-bezier(.3,.05,.4,1) 1;}
+/* Attack sprite still plays while airborne (jump arc handled by .jump-arc) */
+#player.jump-arc.attacking .p-sprite{
+  background:url("assets/office_man/Attack.png") no-repeat 0 0;
+  background-size:512px 128px;
+  animation:manAttack .5s steps(1) 1;
+}
+
+/* Idle — revert sprite to idle sheet */
+#player.idle .p-sprite{
+  background:url("assets/office_man/Idle.png") no-repeat 0 0;
+  background-size:768px 128px;
+  animation:manIdle .9s steps(1) infinite;
+}
+
+/* Attack slash FX */
+@keyframes slashFX{
+  0%{transform:scale(0) rotate(-30deg);opacity:1}
+  50%{transform:scale(1) rotate(15deg);opacity:.8}
+  100%{transform:scale(1.2) rotate(30deg);opacity:0}
+}
+.slash-fx{
+  position:absolute;pointer-events:none;z-index:35;
+  width:60px;height:12px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.9),rgba(255,255,200,.8),transparent);
+  border-radius:2px;
+  animation:slashFX .35s ease-out forwards;
+}
+
+/* ===========================================================
+   RPG dialog-box UI primitives
+   =========================================================== */
+.stop{position:absolute;bottom:var(--ground-h);transform:translateX(-50%);z-index:20;}
+
+.panel{
+  position:relative;margin-bottom:30px;width:560px;max-width:80vw;
+  background:var(--panel);color:var(--cream);
+  border:4px solid var(--panel-edge);border-radius:0;
+  box-shadow:inset 0 0 0 3px var(--panel-hi), 0 8px 0 rgba(0,0,0,.45), 0 16px 30px rgba(0,0,0,.35);
+  padding:26px 30px;
+}
+.panel .post{position:absolute;left:50%;bottom:-58px;transform:translateX(-50%);width:18px;height:58px;
+  background:linear-gradient(90deg,#7a5128,#5c3c1d);border:3px solid var(--panel-edge);z-index:-1;}
+.panel .kicker{font-family:"Press Start 2P",monospace;font-size:10px;letter-spacing:1px;color:var(--gold-hi);margin-bottom:14px;}
+.panel h1{font-family:"Press Start 2P",monospace;font-size:26px;line-height:1.45;color:var(--gold-hi);margin-bottom:12px;
+  text-shadow:0 3px 0 rgba(0,0,0,.45);}
+.panel h2{font-family:"Press Start 2P",monospace;font-size:17px;line-height:1.5;color:var(--gold-hi);margin-bottom:12px;
+  text-shadow:0 2px 0 rgba(0,0,0,.4);}
+.panel p{font-size:16px;line-height:1.55;color:var(--cream);}
+.panel .lead{font-size:16px;color:var(--gold);font-weight:800;font-family:"Press Start 2P",monospace;font-size:11px;letter-spacing:.5px;margin:6px 0;}
+
+.hero-portrait{width:104px;height:104px;border:4px solid var(--panel-edge);
+  box-shadow:inset 0 0 0 3px var(--gold);overflow:hidden;float:right;margin:0 0 10px 18px;background:#3a2a55;}
+.hero-portrait img{width:100%;height:100%;object-fit:cover;display:block;image-rendering:auto;}
+
+.chiprow{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;}
+.chip{font-family:"Press Start 2P",monospace;font-size:9px;padding:9px 10px;border-radius:0;
+  background:var(--panel-2);color:var(--cream);border:3px solid var(--panel-edge);box-shadow:inset 0 0 0 2px var(--panel-hi);
+  text-decoration:none;}
+.chip.grape{background:var(--grape);color:#fff;box-shadow:inset 0 0 0 2px rgba(255,255,255,.25);}
+a.chip:hover{background:var(--grape-deep);color:#fff;}
+
+/* Skill "? bricks" */
+.brickrow{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;width:560px;max-width:82vw;margin-bottom:30px;}
+.brick{width:72px;height:72px;border-radius:0;background:linear-gradient(180deg,#f0b94a,#d4942a);
+  border:4px solid var(--panel-edge);box-shadow:inset 0 0 0 3px #f7d680, 0 5px 0 rgba(0,0,0,.4);
+  display:flex;align-items:center;justify-content:center;text-align:center;cursor:pointer;
+  font-family:"Press Start 2P",monospace;font-size:8px;color:#5c3a08;line-height:1.4;padding:6px;transition:transform .1s;}
+.brick:hover{transform:translateY(-6px);}
+.brick.hit{background:linear-gradient(180deg,#ffe9a0,#f3c652);box-shadow:inset 0 0 0 3px #fff3c0, 0 5px 0 rgba(0,0,0,.4);
+  color:#7a5410;animation:brickBump .34s steps(3);}
+@keyframes brickBump{0%{transform:translateY(0)}40%{transform:translateY(-18px)}100%{transform:translateY(0)}}
+.floatscore{position:fixed;z-index:70;font-family:"Press Start 2P",monospace;font-size:13px;color:var(--gold-hi);
+  text-shadow:0 2px 0 rgba(0,0,0,.55);pointer-events:none;animation:floatUp .8s ease-out forwards;}
+@keyframes floatUp{0%{transform:translateX(-50%) translateY(0);opacity:1}100%{transform:translateX(-50%) translateY(-48px);opacity:0}}
+
+/* Project billboard (pixel sign) */
+.billboard{position:relative;margin-bottom:30px;cursor:pointer;}
+.billboard.stop{position:absolute;bottom:var(--ground-h);transform:translateX(-50%);}
+.bb-frame{
+  width:296px;max-width:74vw;background:var(--panel);
+  border:4px solid var(--panel-edge);border-radius:0;
+  box-shadow:inset 0 0 0 3px var(--panel-hi), 0 8px 0 rgba(0,0,0,.45), 0 18px 30px rgba(0,0,0,.35);
+  padding:14px 14px 16px;transition:transform .12s steps(2);
+}
+.billboard.active .bb-frame,.billboard:hover .bb-frame{transform:translateY(-10px);}
+.bb-num{position:absolute;top:-16px;left:-14px;width:44px;height:44px;border-radius:0;
+  background:var(--gold);color:#5c3a08;border:4px solid var(--panel-edge);display:flex;align-items:center;justify-content:center;
+  font-family:"Press Start 2P",monospace;font-size:13px;z-index:3;box-shadow:inset 0 0 0 2px var(--gold-hi);}
+.bb-screen{width:100%;height:300px;border-radius:0;overflow:hidden;background:#0d0a1a;border:3px solid var(--panel-edge);box-shadow:inset 0 0 0 2px var(--panel-hi);}
+.bb-screen img{width:100%;height:100%;object-fit:cover;object-position:top center;display:block;image-rendering:auto;}
+.bb-title{font-family:"Press Start 2P",monospace;font-size:12px;line-height:1.4;color:var(--gold-hi);margin-top:14px;}
+.bb-client{font-size:13px;color:var(--cream-dim);margin-top:8px;}
+.bb-cta{margin-top:12px;display:inline-flex;align-items:center;gap:6px;font-family:"Press Start 2P",monospace;
+  font-size:9px;color:#fff;background:var(--grape);padding:9px 12px;border-radius:0;box-shadow:inset 0 0 0 2px rgba(255,255,255,.25),0 4px 0 var(--grape-deep);}
+.bb-legs{position:absolute;left:50%;bottom:-44px;transform:translateX(-50%);display:flex;gap:118px;z-index:-1;}
+.bb-legs span{width:14px;height:50px;background:linear-gradient(90deg,#7a5128,#5c3c1d);border:3px solid var(--panel-edge);}
+.bounce-hint{position:absolute;top:-42px;left:50%;transform:translateX(-50%);font-family:"Press Start 2P",monospace;
+  font-size:8px;color:var(--gold-hi);background:var(--panel);border:3px solid var(--panel-edge);box-shadow:inset 0 0 0 2px var(--panel-hi);
+  padding:7px 9px;white-space:nowrap;opacity:0;transition:opacity .2s;}
+.billboard.active .bounce-hint{opacity:1;animation:hintBob .7s steps(2,end) infinite;}
+@keyframes hintBob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-6px)}}
+
+/* Finish flag (checkered race finish) */
+.flagpole{position:absolute;bottom:var(--ground-h);transform:translateX(-50%);width:10px;height:300px;
+  background:linear-gradient(90deg,#d8d0c0,#a89e8c);border:3px solid var(--panel-edge);z-index:19;}
+.flagpole .flag{position:absolute;top:6px;left:10px;
+  width:56px;height:38px;
+  background:repeating-conic-gradient(#fff 0% 12.5%,#222 0% 25%) 0 0/20px 20px;
+  border:3px solid var(--panel-edge);border-radius:0;
+  box-shadow:0 4px 0 rgba(0,0,0,.3);}
+.flagpole .ball{position:absolute;top:-12px;left:50%;transform:translateX(-50%);width:20px;height:20px;border-radius:50%;background:var(--gold);border:3px solid var(--panel-edge);}
+
+/* ---- Coins (pixel gold) ---- */
+.coin{position:absolute;width:30px;height:30px;border-radius:0;z-index:18;
+  background:var(--coin);border:3px solid var(--coin-edge);
+  box-shadow:inset 2px 2px 0 var(--gold-hi), inset -2px -2px 0 var(--gold-lo), 0 0 10px rgba(255,207,58,.5);
+  display:flex;align-items:center;justify-content:center;font-family:"Press Start 2P",monospace;font-size:11px;color:#7a5410;
+  animation:coinSpin 1.4s steps(4,end) infinite;clip-path:polygon(30% 0,70% 0,100% 30%,100% 70%,70% 100%,30% 100%,0 70%,0 30%);}
+@keyframes coinSpin{0%,100%{transform:translateX(-50%) scaleX(1)}50%{transform:translateX(-50%) scaleX(.3)}}
+.coin.collected{animation:coinPop .35s steps(4,end) forwards;}
+@keyframes coinPop{0%{transform:translateX(-50%) scale(1)}100%{transform:translateX(-50%) translateY(-40px) scale(0);opacity:0}}
+.coin.high{box-shadow:inset 2px 2px 0 var(--gold-hi), inset -2px -2px 0 var(--gold-lo), 0 0 14px rgba(255,207,58,.8);}
+.coin.high::after{content:"";position:absolute;inset:-8px;border:2px dashed rgba(255,255,255,.6);
+  animation:haloPulse 1.2s steps(3,end) infinite;}
+@keyframes haloPulse{0%,100%{transform:scale(1);opacity:.5}50%{transform:scale(1.16);opacity:0}}
+
+/* ===========================================================
+   HUD / chrome  (pixel dialog style)
+   =========================================================== */
+#hud{position:fixed;top:0;left:0;width:100%;z-index:60;display:flex;align-items:flex-start;
+  justify-content:space-between;gap:12px;padding:14px 18px;pointer-events:none;}
+#hud .left,#hud .right{display:flex;align-items:center;gap:10px;pointer-events:auto;}
+.brand{font-family:"Press Start 2P",monospace;font-size:13px;color:var(--gold-hi);text-shadow:0 3px 0 rgba(0,0,0,.5);
+  padding-top:6px;}
+.hud-pill{display:flex;align-items:center;gap:8px;background:var(--panel);border:3px solid var(--panel-edge);
+  box-shadow:inset 0 0 0 2px var(--panel-hi);border-radius:0;padding:8px 11px;font-family:"Press Start 2P",monospace;font-size:11px;color:var(--cream);}
+.hud-pill .coinico{width:16px;height:16px;background:var(--coin);border:2px solid var(--coin-edge);
+  box-shadow:inset 1px 1px 0 var(--gold-hi);clip-path:polygon(30% 0,70% 0,100% 30%,100% 70%,70% 100%,30% 100%,0 70%,0 30%);}
+.hud-btn{cursor:pointer;background:var(--panel);border:3px solid var(--panel-edge);box-shadow:inset 0 0 0 2px var(--panel-hi);
+  border-radius:0;padding:9px 11px;font-family:"Press Start 2P",monospace;font-size:11px;color:var(--cream);user-select:none;}
+.hud-btn:active{transform:translateY(2px);}
+
+/* Progress bar */
+#progress-wrap{position:fixed;left:0;right:0;bottom:0;height:20px;z-index:60;background:var(--panel-edge);}
+#progress-wrap .track{position:absolute;left:14px;right:18px;top:50%;transform:translateY(-50%);height:8px;background:rgba(255,255,255,.14);}
+#progress-bar{position:absolute;left:0;top:0;height:100%;width:0;background:repeating-linear-gradient(90deg,var(--gold) 0 6px,var(--gold-lo) 6px 8px);}
+#progress-marker{position:absolute;top:50%;transform:translate(-50%,-50%);font-size:13px;transition:left .05s linear;}
+
+/* Section quick-nav — top centre */
+#nav-chips{position:fixed;top:13px;left:50%;transform:translateX(-50%);z-index:60;display:flex;gap:6px;
+  background:var(--panel);border:3px solid var(--panel-edge);box-shadow:inset 0 0 0 2px var(--panel-hi);border-radius:0;padding:6px;}
+#nav-chips button{cursor:pointer;border:none;background:transparent;font-family:"Press Start 2P",monospace;font-size:9px;
+  padding:8px 9px;border-radius:0;color:var(--cream-dim);}
+#nav-chips button.active{background:var(--grape);color:#fff;}
+
+/* On-screen arrows — vertically centred at edges */
+.walkbtn{position:fixed;top:50%;transform:translateY(-50%);z-index:60;width:60px;height:60px;border-radius:0;cursor:pointer;
+  background:var(--panel);border:4px solid var(--panel-edge);box-shadow:inset 0 0 0 3px var(--panel-hi);
+  display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--gold-hi);user-select:none;}
+.walkbtn:active{transform:translateY(calc(-50% + 2px));}
+#walk-left{left:18px;}#walk-right{right:18px;}
+
+/* Start overlay */
+#startcard{position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;
+  background:rgba(12,8,24,.66);transition:opacity .5s;}
+#startcard .inner{background:var(--panel);border:5px solid var(--panel-edge);border-radius:0;
+  box-shadow:inset 0 0 0 4px var(--panel-hi), 0 14px 0 rgba(0,0,0,.5);padding:38px 40px;text-align:center;max-width:520px;}
+#startcard h1{font-family:"Press Start 2P",monospace;font-size:24px;line-height:1.5;margin-bottom:14px;color:var(--gold-hi);
+  text-shadow:0 3px 0 rgba(0,0,0,.5);}
+#startcard .sub{font-size:16px;color:var(--cream);margin-bottom:22px;line-height:1.5;}
+.keys{display:flex;gap:10px;justify-content:center;margin-bottom:24px;flex-wrap:wrap;}
+.keycap{font-family:"Press Start 2P",monospace;font-size:10px;background:var(--panel-2);border:3px solid var(--panel-edge);
+  box-shadow:inset 0 0 0 2px var(--panel-hi);border-radius:0;padding:10px 11px;color:var(--cream);}
+.startbtn{cursor:pointer;font-family:"Press Start 2P",monospace;font-size:13px;color:#fff;background:var(--grape);
+  border:4px solid var(--panel-edge);border-radius:0;padding:15px 28px;box-shadow:inset 0 0 0 2px rgba(255,255,255,.25),0 6px 0 var(--grape-deep);}
+.startbtn:active{transform:translateY(3px);box-shadow:inset 0 0 0 2px rgba(255,255,255,.25),0 3px 0 var(--grape-deep);}
+
+/* Project modal */
+#modal{position:fixed;inset:0;z-index:90;display:none;align-items:center;justify-content:center;padding:24px;
+  background:rgba(10,6,18,.74);}
+#modal.open{display:flex;}
+.modal-card{background:var(--panel);border:5px solid var(--panel-edge);border-radius:0;max-width:920px;width:100%;
+  max-height:88vh;overflow:auto;box-shadow:inset 0 0 0 4px var(--panel-hi), 0 16px 0 rgba(0,0,0,.5);}
+.modal-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding:26px 30px 12px;}
+.modal-head h2{font-family:"Press Start 2P",monospace;font-size:20px;line-height:1.5;color:var(--gold-hi);text-shadow:0 2px 0 rgba(0,0,0,.4);}
+.modal-head .client{color:var(--gold);font-family:"Press Start 2P",monospace;font-size:10px;margin-top:12px;letter-spacing:.5px;}
+.modal-close{cursor:pointer;font-family:"Press Start 2P",monospace;font-size:11px;background:var(--grape);color:#fff;
+  border:3px solid var(--panel-edge);border-radius:0;padding:11px 12px;box-shadow:inset 0 0 0 2px rgba(255,255,255,.25),0 4px 0 var(--grape-deep);flex:none;}
+.modal-body{padding:0 30px 30px;}
+.modal-shots{display:flex;gap:14px;overflow-x:auto;padding:8px 2px 18px;}
+.modal-shots img{height:420px;border-radius:0;border:3px solid var(--panel-edge);box-shadow:inset 0 0 0 2px var(--panel-hi);background:#0d0a1a;image-rendering:auto;}
+.modal-stack{display:flex;flex-wrap:wrap;gap:7px;margin-top:6px;}
+.modal-desc{font-size:16px;color:var(--cream);margin:6px 0 16px;line-height:1.55;}
+
+/* Hide coins */
+body.hide-coins .coin{display:none;}
+
+/* Reduced motion */
+@media (prefers-reduced-motion:reduce){
+  #player,.coin,.brick,.bounce-hint{animation:none !important;}
+}
+
+/* Small screens */
+@media (max-width:720px){
+  :root{--ground-h:18vh;}
+  .panel h1{font-size:20px;}
+  .panel{padding:20px 22px;}
+  #nav-chips{display:none;}
+  .modal-shots img{height:300px;}
+  .brand{font-size:10px;}
+}
+
+/* ---------------- Asset credit / copyright ---------------- */
+.credits{
+  margin-top:14px;padding-top:12px;
+  border-top:1px solid rgba(255,255,255,.12);
+  display:flex;flex-direction:column;gap:4px;
+  font-size:11px;line-height:1.5;letter-spacing:.2px;
+  color:rgba(235,235,245,.6);
+}
+.credits a{color:rgba(235,235,245,.85);text-decoration:underline;}
+.credits a:hover{color:#fff;}

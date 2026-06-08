@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+<title>Shendy's World — Portfolio</title>
+<link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet" />
+<link href="world.css" rel="stylesheet" />
+</head>
+<body id="page-top">
+
+  <!-- Fixed game stage -->
+  <div id="stage">
+    <!-- Pixel-art parallax layers (tiled background images) -->
+    <div class="layer bg" id="layer-sky"></div>   <!-- clouds -->
+    <div class="layer bg" id="layer-far"></div>   <!-- far city skyline -->
+    <div class="layer bg" id="layer-mid"></div>   <!-- near city blocks -->
+    <div class="layer bg" id="layer-fore"></div>  <!-- street shops & food stalls -->
+    <!-- NEAR: content stops, billboards, coins -->
+    <div class="layer" id="layer-near"><div class="layer-inner" id="near-inner"></div></div>
+
+    <!-- Ground (static band) -->
+    <div id="ground"><div class="road-lines"></div></div>
+
+    <!-- Player character (animated warrior sprite-sheet, 8-frame breathing idle) -->
+    <div id="player" class="idle">
+      <div class="p-shadow"></div>
+      <div class="p-sprite"></div>
+    </div>
+  </div>
+
+  <!-- HUD -->
+  <div id="hud">
+    <div class="left">
+      <span class="brand">SHENDY'S WORLD</span>
+    </div>
+    <div class="right">
+      <div class="hud-pill"><span class="coinico"></span><span id="coin-count">00</span></div>
+      <div class="hud-btn" id="sound-btn">🔊 ON</div>
+    </div>
+  </div>
+
+  <!-- Section quick-nav -->
+  <div id="nav-chips"></div>
+
+  <!-- On-screen walk arrows -->
+  <div class="walkbtn" id="walk-left">◀</div>
+  <div class="walkbtn" id="walk-right">▶</div>
+
+  <!-- Progress / journey bar -->
+  <div id="progress-wrap">
+    <div class="track"><div id="progress-bar"></div></div>
+    <div id="progress-marker">🚩</div>
+  </div>
+
+  <!-- Tall scroll track drives the camera -->
+  <div id="scroll-track"></div>
+
+  <!-- Start overlay -->
+  <div id="startcard">
+    <div class="inner">
+      <h1>SHENDY'S<br>WORLD</h1>
+      <p class="sub">A side-scrolling portfolio. Walk through the world to explore my iOS work — collect coins along the way.</p>
+      <div class="keys">
+        <span class="keycap">◀ ▶ ARROWS</span>
+        <span class="keycap">or SCROLL</span>
+        <span class="keycap">SPACE = JUMP</span>
+        <span class="keycap">SHIFT = RUN</span>
+        <span class="keycap">E = ATTACK</span>
+      </div>
+      <button class="startbtn" id="start-btn">▶ START</button>
+    </div>
+  </div>
+
+  <!-- Project modal -->
+  <div id="modal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div>
+          <h2 id="m-title"></h2>
+          <div class="client" id="m-client"></div>
+        </div>
+        <button class="modal-close" id="m-close">✕ CLOSE</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-shots" id="m-shots"></div>
+        <p class="modal-desc" id="m-desc"></p>
+        <div class="modal-stack" id="m-stack"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tweaks panel (React) -->
+  <div id="tweaks-root"></div>
+
+  <script src="world.js"></script>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <script type="text/babel" src="tweaks-panel.jsx"></script>
+  <script type="text/babel" src="tweaks-app.jsx"></script>
+</body>
+</html>
