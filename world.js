@@ -200,7 +200,20 @@
         <a class="chip" href="mailto:shendyaditya@live.com" title="shendyaditya@live.com">✉ Live</a>
       </div>
       <div class="credits">
+        <span class="claude-credit">Created with Claude — get a free week of
+          <a href="https://claude.ai/referral/hWl_6z2aig" target="_blank" rel="noopener">
+            <svg class="claude-logo" viewBox="0 0 24 24" aria-hidden="true"><g fill="#D97757">
+              <rect x="11" y="0" width="2" height="24" rx="1"/>
+              <rect x="0" y="11" width="24" height="2" rx="1"/>
+              <rect x="11" y="0" width="2" height="24" rx="1" transform="rotate(45 12 12)"/>
+              <rect x="11" y="0" width="2" height="24" rx="1" transform="rotate(-45 12 12)"/>
+              <rect x="11" y="3" width="2" height="18" rx="1" transform="rotate(22.5 12 12)"/>
+              <rect x="11" y="3" width="2" height="18" rx="1" transform="rotate(-22.5 12 12)"/>
+              <rect x="11" y="3" width="2" height="18" rx="1" transform="rotate(67.5 12 12)"/>
+              <rect x="11" y="3" width="2" height="18" rx="1" transform="rotate(-67.5 12 12)"/>
+            </g></svg>Claude Code</a></span>
         <span>Character sprites from <a href="https://craftpix.net/" target="_blank" rel="noopener">craftpix.net</a></span>
+        <span>Avatar created using ChatGPT and Google Omni</span>
         <span>© 2026 Shendy Aditya Syamsudin</span>
       </div>
       <div class="post"></div></div>`;

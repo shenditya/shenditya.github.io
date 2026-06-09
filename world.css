@@ -667,3 +667,8 @@ body.hide-coins .coin{display:none;}
 }
 .credits a{color:rgba(235,235,245,.85);text-decoration:underline;}
 .credits a:hover{color:#fff;}
+
+/* "Fully created with Claude" credit line */
+.claude-credit a{display:inline-flex;align-items:center;gap:4px;color:#e8a07f;text-decoration:none;}
+.claude-credit a:hover{color:#f4b896;text-decoration:underline;}
+.claude-logo{width:13px;height:13px;flex:none;vertical-align:middle;}
