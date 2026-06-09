@@ -54,6 +54,7 @@
   const progressMarker = document.getElementById("progress-marker");
   const coinCountEl = document.getElementById("coin-count");
   const navChips = document.getElementById("nav-chips");
+  const walkLeftBtn  = document.getElementById("walk-left");
   const walkRightBtn = document.getElementById("walk-right");
 
   /* ---------------- Layout config ---------------- */
@@ -416,8 +417,11 @@
       }
     }
 
-    // Hide right arrow when at the end; show otherwise
+    // Hide arrows at scroll limits
+    const atStart = rawP <= 0.002;
     const atEnd = rawP >= 0.998;
+    walkLeftBtn.style.opacity = atStart ? "0" : "1";
+    walkLeftBtn.style.pointerEvents = atStart ? "none" : "auto";
     walkRightBtn.style.opacity = atEnd ? "0" : "1";
     walkRightBtn.style.pointerEvents = atEnd ? "none" : "auto";
 
