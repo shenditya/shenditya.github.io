@@ -146,7 +146,7 @@
       <b>RxSwift</b> and <b>MVVM</b>. Over the years I've shipped public-service and
       enterprise apps used by thousands — from transit payments to national price indices.</p>
       <div class="chiprow">
-        <span class="chip grape">6 shipped apps</span>
+        <span class="chip grape">Top 6 shipped apps</span>
         <span class="chip">iOS · Swift</span>
         <span class="chip">Reactive · MVVM</span>
       </div>
@@ -190,14 +190,14 @@
     const panel=document.createElement("div");panel.className="stop";
     panel.innerHTML=`<div class="panel" style="width:460px">
       <div class="kicker pixel">FINAL — CONTACT</div>
-      <h2>You reached the flag! 🏁</h2>
+      <h2>You reached the end! 🏁</h2>
       <p>Thanks for walking through. Let's build something together.</p>
       <div class="chiprow">
-        <a class="chip grape" href="https://id.linkedin.com/in/shendyaditya" target="_blank" rel="noopener">LinkedIn ↗</a>
-        <a class="chip" href="https://github.com/shenditya" target="_blank" rel="noopener">GitHub ↗</a>
-        <a class="chip" href="https://github.com/shendy-justlogin" target="_blank" rel="noopener">GitHub · alt ↗</a>
-        <a class="chip" href="mailto:mailshendy@gmail.com" title="mailshendy@gmail.com">✉ Gmail</a>
-        <a class="chip" href="mailto:shendyaditya@live.com" title="shendyaditya@live.com">✉ Live</a>
+        <a class="chip" href="https://id.linkedin.com/in/shendyaditya" target="_blank" rel="noopener">LinkedIn</a>
+        <a class="chip" href="https://github.com/shenditya" target="_blank" rel="noopener">GitHub</a>
+        <a class="chip" href="https://github.com/shendy-justlogin" target="_blank" rel="noopener">GitHub · alt</a>
+        <a class="chip" href="mailto:mailshendy@gmail.com" title="mailshendy@gmail.com">@ Gmail</a>
+        <a class="chip" href="mailto:shendyaditya@live.com" title="shendyaditya@live.com">@ Live</a>
       </div>
       <div class="credits">
         <span class="claude-credit">Created with Claude — get a free week of
@@ -214,15 +214,11 @@
             </g></svg>Claude Code</a></span>
         <span>Character sprites from <a href="https://craftpix.net/" target="_blank" rel="noopener">craftpix.net</a></span>
         <span>Avatar created using ChatGPT and Google Omni</span>
-        <span>© 2026 Shendy Aditya Syamsudin</span>
+        <span>© 2026 Shendy Aditya S.</span>
       </div>
       <div class="post"></div></div>`;
     nearInner.appendChild(panel);
     contactPanelEl = panel;
-    const pole=document.createElement("div");pole.className="flagpole";
-    pole.innerHTML=`<div class="ball"></div><div class="flag"></div>`;
-    nearInner.appendChild(pole);
-    contactFlagEl = pole;
     return null;
   }
 
