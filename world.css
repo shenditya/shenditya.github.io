@@ -341,6 +341,121 @@ body.tod-night #ground{filter:brightness(.6);}
   animation:manIdle .9s steps(1) infinite;
 }
 
+/* ---------------- City NPCs (background pedestrians) ---------------- */
+.npc{position:absolute;bottom:calc(var(--ground-h) - 10px);width:128px;height:128px;z-index:16;
+  transform:translateX(-50%) scaleX(1);transform-origin:bottom center;pointer-events:none;}
+.npc.face-left{transform:translateX(-50%) scaleX(-1);}
+.npc .npc-sprite{position:absolute;left:0;bottom:0;width:128px;height:128px;image-rendering:pixelated;}
+.npc .npc-shadow{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);
+  width:70px;height:12px;background:rgba(10,6,20,.35);border-radius:50%;filter:blur(1px);}
+
+/* City_men_1 */
+.npc.men1 .npc-sprite{background:url("assets/City_men_1/Idle.png") no-repeat 0 0;background-size:768px 128px;
+  animation:npc1Idle .9s steps(1) infinite;}
+.npc.men1.walking .npc-sprite{background:url("assets/City_men_1/Walk.png") no-repeat 0 0;background-size:1280px 128px;
+  animation:npcWalk .6s steps(1) infinite;}
+.npc.men1.running .npc-sprite{background:url("assets/City_men_1/Run.png") no-repeat 0 0;background-size:1280px 128px;
+  animation:npcWalk .4s steps(1) infinite;}
+@keyframes npc1Idle{0%{background-position:0 0}16.67%{background-position:-128px 0}33.33%{background-position:-256px 0}
+  50%{background-position:-384px 0}66.67%{background-position:-512px 0}83.33%{background-position:-640px 0}100%{background-position:0 0}}
+
+/* City_men_2 */
+.npc.men2 .npc-sprite{background:url("assets/City_men_2/Idle.png") no-repeat 0 0;background-size:768px 128px;
+  animation:npc2Idle .9s steps(1) infinite;}
+.npc.men2.walking .npc-sprite{background:url("assets/City_men_2/Walk.png") no-repeat 0 0;background-size:1280px 128px;
+  animation:npcWalk .6s steps(1) infinite;}
+.npc.men2.running .npc-sprite{background:url("assets/City_men_2/Run.png") no-repeat 0 0;background-size:1280px 128px;
+  animation:npcWalk .4s steps(1) infinite;}
+@keyframes npc2Idle{0%{background-position:0 0}16.67%{background-position:-128px 0}33.33%{background-position:-256px 0}
+  50%{background-position:-384px 0}66.67%{background-position:-512px 0}83.33%{background-position:-640px 0}100%{background-position:0 0}}
+
+/* shared 10-frame walk/run cycle (1280x128 strip) */
+@keyframes npcWalk{0%{background-position:0 0}10%{background-position:-128px 0}20%{background-position:-256px 0}
+  30%{background-position:-384px 0}40%{background-position:-512px 0}50%{background-position:-640px 0}
+  60%{background-position:-768px 0}70%{background-position:-896px 0}80%{background-position:-1024px 0}
+  90%{background-position:-1152px 0}100%{background-position:0 0}}
+
+/* Hurt — 3-frame (384x128), plays once. .running/.walking removed while hurt. */
+.npc.men1.hurt .npc-sprite{background:url("assets/City_men_1/Hurt.png") no-repeat 0 0;background-size:384px 128px;
+  animation:npcHurt .4s steps(1) 1;}
+.npc.men2.hurt .npc-sprite{background:url("assets/City_men_2/Hurt.png") no-repeat 0 0;background-size:384px 128px;
+  animation:npcHurt .4s steps(1) 1;}
+@keyframes npcHurt{0%{background-position:0 0}33.33%{background-position:-128px 0}
+  66.67%{background-position:-256px 0}100%{background-position:-256px 0}}
+
+/* Dead — 4-frame (512x128), plays once and holds last frame */
+.npc.men1.dead .npc-sprite{background:url("assets/City_men_1/Dead.png") no-repeat 0 0;background-size:512px 128px;
+  animation:npcDead .55s steps(1) 1 forwards;}
+.npc.men2.dead .npc-sprite{background:url("assets/City_men_2/Dead.png") no-repeat 0 0;background-size:512px 128px;
+  animation:npcDead .55s steps(1) 1 forwards;}
+@keyframes npcDead{0%{background-position:0 0}33.33%{background-position:-128px 0}
+  66.67%{background-position:-256px 0}100%{background-position:-384px 0}}
+.npc.dying{animation:npcFade .5s ease-out .4s forwards;}
+@keyframes npcFade{to{opacity:0;}}
+
+/* ---------------- Gangster NPCs ---------------- */
+/* Gangster_1 — idle 6f(768), walk/run 10f(1280), hurt 5f(640), dead 5f(640) */
+.npc.gang1 .npc-sprite{background:url("assets/Gangsters_1/Idle.png") no-repeat 0 0;background-size:768px 128px;
+  animation:gang1Idle .9s steps(1) infinite;}
+.npc.gang1.walking .npc-sprite{background:url("assets/Gangsters_1/Walk.png") no-repeat 0 0;background-size:1280px 128px;animation:npcWalk .6s steps(1) infinite;}
+.npc.gang1.running .npc-sprite{background:url("assets/Gangsters_1/Run.png") no-repeat 0 0;background-size:1280px 128px;animation:npcWalk .4s steps(1) infinite;}
+.npc.gang1.hurt .npc-sprite{background:url("assets/Gangsters_1/Hurt.png") no-repeat 0 0;background-size:640px 128px;animation:npcHurt5 .4s steps(1) 1;}
+.npc.gang1.dead .npc-sprite{background:url("assets/Gangsters_1/Dead.png") no-repeat 0 0;background-size:640px 128px;animation:npcDead5 .6s steps(1) 1 forwards;}
+@keyframes gang1Idle{0%{background-position:0 0}16.67%{background-position:-128px 0}33.33%{background-position:-256px 0}
+  50%{background-position:-384px 0}66.67%{background-position:-512px 0}83.33%{background-position:-640px 0}100%{background-position:0 0}}
+
+/* Gangster_2 — idle 7f(896), walk/run 10f, hurt 4f(512), dead 5f(640) */
+.npc.gang2 .npc-sprite{background:url("assets/Gangsters_2/Idle.png") no-repeat 0 0;background-size:896px 128px;
+  animation:gang2Idle 1s steps(1) infinite;}
+.npc.gang2.walking .npc-sprite{background:url("assets/Gangsters_2/Walk.png") no-repeat 0 0;background-size:1280px 128px;animation:npcWalk .6s steps(1) infinite;}
+.npc.gang2.running .npc-sprite{background:url("assets/Gangsters_2/Run.png") no-repeat 0 0;background-size:1280px 128px;animation:npcWalk .4s steps(1) infinite;}
+.npc.gang2.hurt .npc-sprite{background:url("assets/Gangsters_2/Hurt.png") no-repeat 0 0;background-size:512px 128px;animation:npcHurt .4s steps(1) 1;}
+.npc.gang2.dead .npc-sprite{background:url("assets/Gangsters_2/Dead.png") no-repeat 0 0;background-size:640px 128px;animation:npcDead5 .6s steps(1) 1 forwards;}
+
+/* Gangster_3 — idle 7f(896), walk/run 10f, hurt 4f(512), dead 5f(640) */
+.npc.gang3 .npc-sprite{background:url("assets/Gangsters_3/Idle.png") no-repeat 0 0;background-size:896px 128px;
+  animation:gang2Idle 1s steps(1) infinite;}
+.npc.gang3.walking .npc-sprite{background:url("assets/Gangsters_3/Walk.png") no-repeat 0 0;background-size:1280px 128px;animation:npcWalk .6s steps(1) infinite;}
+.npc.gang3.running .npc-sprite{background:url("assets/Gangsters_3/Run.png") no-repeat 0 0;background-size:1280px 128px;animation:npcWalk .4s steps(1) infinite;}
+.npc.gang3.hurt .npc-sprite{background:url("assets/Gangsters_3/Hurt.png") no-repeat 0 0;background-size:512px 128px;animation:npcHurt .4s steps(1) 1;}
+.npc.gang3.dead .npc-sprite{background:url("assets/Gangsters_3/Dead.png") no-repeat 0 0;background-size:640px 128px;animation:npcDead5 .6s steps(1) 1 forwards;}
+
+@keyframes gang2Idle{0%{background-position:0 0}14.28%{background-position:-128px 0}28.57%{background-position:-256px 0}
+  42.85%{background-position:-384px 0}57.14%{background-position:-512px 0}71.42%{background-position:-640px 0}
+  85.71%{background-position:-768px 0}100%{background-position:0 0}}
+
+/* 5-frame hurt (640x128) */
+@keyframes npcHurt5{0%{background-position:0 0}25%{background-position:-128px 0}50%{background-position:-256px 0}
+  75%{background-position:-384px 0}100%{background-position:-512px 0}}
+/* 5-frame dead (640x128), holds last */
+@keyframes npcDead5{0%{background-position:0 0}25%{background-position:-128px 0}50%{background-position:-256px 0}
+  75%{background-position:-384px 0}100%{background-position:-512px 0}}
+
+/* ---------------- Homeless NPCs ---------------- */
+/* walk/run 8f(1024), hurt 3f(384)->npcHurt, dead 4f(512)->npcDead */
+.npc.home1 .npc-sprite{background:url("assets/Homeless_1/Idle.png") no-repeat 0 0;background-size:768px 128px;animation:gang1Idle .9s steps(1) infinite;}
+.npc.home2 .npc-sprite{background:url("assets/Homeless_2/Idle.png") no-repeat 0 0;background-size:896px 128px;animation:gang2Idle 1s steps(1) infinite;}
+.npc.home3 .npc-sprite{background:url("assets/Homeless_3/Idle.png") no-repeat 0 0;background-size:768px 128px;animation:gang1Idle .9s steps(1) infinite;}
+
+.npc.home1.walking .npc-sprite{background:url("assets/Homeless_1/Walk.png") no-repeat 0 0;background-size:1024px 128px;animation:npcWalk8 .6s steps(1) infinite;}
+.npc.home2.walking .npc-sprite{background:url("assets/Homeless_2/Walk.png") no-repeat 0 0;background-size:1024px 128px;animation:npcWalk8 .6s steps(1) infinite;}
+.npc.home3.walking .npc-sprite{background:url("assets/Homeless_3/Walk.png") no-repeat 0 0;background-size:1024px 128px;animation:npcWalk8 .6s steps(1) infinite;}
+.npc.home1.running .npc-sprite{background:url("assets/Homeless_1/Run.png") no-repeat 0 0;background-size:1024px 128px;animation:npcWalk8 .4s steps(1) infinite;}
+.npc.home2.running .npc-sprite{background:url("assets/Homeless_2/Run.png") no-repeat 0 0;background-size:1024px 128px;animation:npcWalk8 .4s steps(1) infinite;}
+.npc.home3.running .npc-sprite{background:url("assets/Homeless_3/Run.png") no-repeat 0 0;background-size:1024px 128px;animation:npcWalk8 .4s steps(1) infinite;}
+
+.npc.home1.hurt .npc-sprite{background:url("assets/Homeless_1/Hurt.png") no-repeat 0 0;background-size:384px 128px;animation:npcHurt .4s steps(1) 1;}
+.npc.home2.hurt .npc-sprite{background:url("assets/Homeless_2/Hurt.png") no-repeat 0 0;background-size:384px 128px;animation:npcHurt .4s steps(1) 1;}
+.npc.home3.hurt .npc-sprite{background:url("assets/Homeless_3/Hurt.png") no-repeat 0 0;background-size:384px 128px;animation:npcHurt .4s steps(1) 1;}
+.npc.home1.dead .npc-sprite{background:url("assets/Homeless_1/Dead.png") no-repeat 0 0;background-size:512px 128px;animation:npcDead .55s steps(1) 1 forwards;}
+.npc.home2.dead .npc-sprite{background:url("assets/Homeless_2/Dead.png") no-repeat 0 0;background-size:512px 128px;animation:npcDead .55s steps(1) 1 forwards;}
+.npc.home3.dead .npc-sprite{background:url("assets/Homeless_3/Dead.png") no-repeat 0 0;background-size:512px 128px;animation:npcDead .55s steps(1) 1 forwards;}
+
+/* 8-frame walk/run cycle (1024x128 strip) */
+@keyframes npcWalk8{0%{background-position:0 0}12.5%{background-position:-128px 0}25%{background-position:-256px 0}
+  37.5%{background-position:-384px 0}50%{background-position:-512px 0}62.5%{background-position:-640px 0}
+  75%{background-position:-768px 0}87.5%{background-position:-896px 0}100%{background-position:0 0}}
+
 /* Attack slash FX */
 @keyframes slashFX{
   0%{transform:scale(0) rotate(-30deg);opacity:1}
@@ -448,6 +563,9 @@ a.chip:hover{background:var(--grape-deep);color:#fff;}
 @keyframes coinSpin{0%,100%{transform:translateX(-50%) scaleX(1)}50%{transform:translateX(-50%) scaleX(.3)}}
 .coin.collected{animation:coinPop .35s steps(4,end) forwards;}
 @keyframes coinPop{0%{transform:translateX(-50%) scale(1)}100%{transform:translateX(-50%) translateY(-40px) scale(0);opacity:0}}
+.coin.drop{animation:coinSpin 1.4s steps(4,end) infinite, coinDrop .45s ease-out;}
+@keyframes coinDrop{0%{transform:translateX(-50%) translateY(-26px) scale(.4);opacity:0}
+  60%{opacity:1}100%{transform:translateX(-50%) translateY(0) scale(1);opacity:1}}
 .coin.high{box-shadow:inset 2px 2px 0 var(--gold-hi), inset -2px -2px 0 var(--gold-lo), 0 0 14px rgba(255,207,58,.8);}
 .coin.high::after{content:"";position:absolute;inset:-8px;border:2px dashed rgba(255,255,255,.6);
   animation:haloPulse 1.2s steps(3,end) infinite;}

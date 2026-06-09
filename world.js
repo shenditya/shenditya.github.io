@@ -117,8 +117,9 @@
     worldLength = stops[stops.length-1].worldX - baseX;
     // Finish framing (camera locks here): contact panel on the LEFT, flag right at the
     // avatar's final walk position so the character reaches it exactly
-    if(contactPanelEl) contactPanelEl.style.left = Math.round(vw*0.30 + worldLength) + "px";
-    if(contactFlagEl)  contactFlagEl.style.left  = Math.round(vw*0.58 + worldLength) + "px";
+    if(contactPanelEl) contactPanelEl.style.left = Math.round(vw*0.40 + worldLength) + "px";
+    if(contactFlagEl)  contactFlagEl.style.left  = Math.round(vw*0.92 + worldLength) + "px";
+    buildNpcs();
     buildCoins();
     buildNavChips();
   }
@@ -244,13 +245,15 @@
     const maxScroll = track.offsetHeight - vh;
     if(s.id==="contact"){ window.scrollTo({top:maxScroll, behavior:"smooth"}); return; }
     const pCam = (s.worldX - vw/2)/worldLength;        // camera progress 0..1
-    const rawP = Math.max(0,Math.min(1,pCam)) * END_SPLIT; // map back to scroll
+    // map camera progress back into the scrolling band [START_SPLIT, END_SPLIT]
+    const rawP = START_SPLIT + Math.max(0,Math.min(1,pCam)) * (END_SPLIT - START_SPLIT);
     window.scrollTo({top: rawP*maxScroll, behavior:"smooth"});
   }
 
   /* ---------------- Camera / render ---------------- */
   let cameraX = 0, lastCamera = 0, lastAvatarX = 0, facing = 1;
-  const END_SPLIT = 0.86; // last 14% of scroll = camera locks, hero walks into the flag
+  const START_SPLIT = 0.05; // first 5% of scroll = camera locked, hero walks in from left edge
+  const END_SPLIT = 0.86;   // last 14% of scroll = camera locks, hero walks into the flag
   let walkingUntil = 0;
   let isJumping = false;
   let isAttacking = false;
@@ -261,6 +264,179 @@
   let attackTimer = null;
   // effective run state
   function isRunning(){ return runHeld || autoRun; }
+
+  /* ---------------- City NPCs (random walk/run pedestrians) ---------------- */
+  let npcs = [];          // {el, sprite, worldX, dir, speed, running, state, until}
+  let lastNpcT = 0;
+
+  const NPC_KINDS = ["men1","men2","gang1","gang2","gang3","home1","home2","home3"];
+  const NPC_PER_KIND = 2;     // per kind
+  const NPC_HP = 3;           // hits to kill
+  const isGang = k => k.startsWith("gang");
+  const isHomeless = k => k.startsWith("home");
+  const GANG_ATTACK_RANGE = 70;   // px center distance a gangster strikes a homeless
+  const GANG_ATTACK_CD = 900;     // ms between a gangster's strikes
+  const FLEE_RANGE = 300;         // homeless notice a gangster within this distance
+  const FLEE_SPEED = 130;         // px/sec when running away
+
+  // Spawn one NPC of `kind` at world x; returns the npc object.
+  function spawnNpc(kind, startX, minX, maxX){
+    const el = document.createElement("div");
+    el.className = `npc ${kind}`;
+    el.innerHTML = `<div class="npc-shadow"></div><div class="npc-sprite"></div>`;
+    el.style.left = startX + "px";
+    nearInner.appendChild(el);
+    const npc = { el, kind, worldX: startX, dir: Math.random()<0.5?-1:1,
+                  speed: 0, running: false, state: "", until: 0,
+                  minX, maxX, hp: NPC_HP, hurt: false, dead: false,
+                  hurtTimer: null, nextAtk: 0 };
+    npcs.push(npc);
+    pickNpcAction(npc, performance.now());
+    return npc;
+  }
+
+  function buildNpcs(){
+    nearInner.querySelectorAll(".npc").forEach(n=>n.remove());
+    npcs = [];
+    const minX = 40, maxX = worldLength + vw - 40;
+    NPC_KINDS.forEach((kind, ki)=>{
+      for(let i=0;i<NPC_PER_KIND;i++){
+        // spread spawns across the world, offset each kind so they interleave
+        const frac = (i + 0.5 + ki/NPC_KINDS.length) / (NPC_PER_KIND + 1);
+        const startX = minX + (maxX-minX)*Math.min(0.95, frac);
+        spawnNpc(kind, startX, minX, maxX);
+      }
+    });
+  }
+
+  // An NPC takes a hit — deduct hp; hurt anim, or death + respawn at hp 0.
+  // attackerX = world x of whoever struck (player or gangster); knockback pushes away.
+  function hurtNpc(npc, attackerX){
+    if(npc.hurt || npc.dead) return;
+    npc.hp--;
+    sfx("hit");
+    const pushRight = attackerX != null ? (npc.worldX >= attackerX) : (facing>0);
+    const kb = pushRight ? 26 : -26;
+    npc.worldX = Math.max(npc.minX, Math.min(npc.maxX, npc.worldX + kb));
+    npc.el.style.left = npc.worldX + "px";
+    npc.dir = pushRight ? 1 : -1;         // face away from the hit
+    npc.el.classList.toggle("face-left", npc.dir<0);
+
+    if(npc.hp <= 0){ killNpc(npc); return; }
+
+    npc.hurt = true;
+    npc.el.classList.remove("walking","running");
+    npc.el.classList.add("hurt");
+    clearTimeout(npc.hurtTimer);
+    npc.hurtTimer = setTimeout(()=>{
+      npc.hurt = false;
+      npc.el.classList.remove("hurt");
+      pickNpcAction(npc, performance.now());  // resume roaming
+    }, 420);
+  }
+
+  // Death: play dead anim, fade out, remove, then spawn a fresh NPC elsewhere.
+  function killNpc(npc){
+    npc.dead = true;
+    npc.speed = 0;
+    clearTimeout(npc.hurtTimer);
+    npc.el.classList.remove("walking","running","hurt");
+    npc.el.classList.add("dead","dying");
+    dropCoin(npc.worldX);
+    setTimeout(()=>{
+      const kind = npc.kind, minX = npc.minX, maxX = npc.maxX;
+      npc.el.remove();
+      const idx = npcs.indexOf(npc);
+      if(idx>=0) npcs.splice(idx,1);
+      // respawn fresh one at a random spot away from the player's camera view
+      const x = minX + Math.random()*(maxX-minX);
+      spawnNpc(kind, x, minX, maxX);
+    }, 1000);
+  }
+
+  // Randomly choose idle / walk (/ run) + direction, for a random duration.
+  // Homeless never random-run — they only run when fleeing a gangster.
+  function pickNpcAction(npc, now){
+    npc.running = false;
+    const r = Math.random();
+    const canRun = !isHomeless(npc.kind);
+    if(r < 0.25){            // idle
+      npc.state = "idle"; npc.speed = 0;
+      npc.until = now + 800 + Math.random()*2200;
+    } else if(r < 0.78 || !canRun){     // walk
+      npc.state = "walk";
+      npc.speed = 30 + Math.random()*25;   // px/sec
+      npc.dir = Math.random()<0.5?-1:1;
+      npc.until = now + 1500 + Math.random()*3000;
+    } else {                 // run
+      npc.state = "run"; npc.running = true;
+      npc.speed = 90 + Math.random()*60;
+      npc.dir = Math.random()<0.5?-1:1;
+      npc.until = now + 1200 + Math.random()*2200;
+    }
+    applyNpcAnim(npc);
+  }
+
+  function applyNpcAnim(npc){
+    npc.el.classList.toggle("walking", npc.state==="walk");
+    npc.el.classList.toggle("running", npc.state==="run");
+    npc.el.classList.toggle("face-left", npc.dir<0);
+  }
+
+  function updateNpcs(now){
+    if(!lastNpcT) lastNpcT = now;
+    const dt = Math.min(0.05, (now - lastNpcT)/1000); // clamp big gaps
+    lastNpcT = now;
+    npcs.slice().forEach(npc=>{
+      if(npc.dead) return;
+
+      // Homeless flee: run away only when a gangster is near; else roam normally.
+      if(!npc.hurt && isHomeless(npc.kind)){
+        let threat=null, best=FLEE_RANGE;
+        npcs.forEach(o=>{
+          if(o.dead || !isGang(o.kind)) return;
+          const d = Math.abs(o.worldX - npc.worldX);
+          if(d < best){ best=d; threat=o; }
+        });
+        if(threat){
+          npc.fleeing = true;
+          npc.dir = npc.worldX >= threat.worldX ? 1 : -1;   // run opposite the gangster
+          npc.speed = FLEE_SPEED;
+          npc.state = "run";
+          npc.until = now + 400;        // re-evaluate threat soon
+          applyNpcAnim(npc);
+        } else if(npc.fleeing){
+          npc.fleeing = false;          // safe now — back to normal wandering
+          pickNpcAction(npc, now);
+        }
+      }
+
+      // Gangsters attack nearby homeless (works even briefly while not hurt)
+      if(!npc.hurt && isGang(npc.kind) && now >= npc.nextAtk){
+        let target=null, best=GANG_ATTACK_RANGE;
+        npcs.forEach(o=>{
+          if(o.dead || o.hurt || !isHomeless(o.kind)) return;
+          const d = Math.abs(o.worldX - npc.worldX);
+          if(d < best){ best=d; target=o; }
+        });
+        if(target){
+          npc.nextAtk = now + GANG_ATTACK_CD;
+          npc.dir = target.worldX >= npc.worldX ? 1 : -1;   // turn toward victim
+          npc.el.classList.toggle("face-left", npc.dir<0);
+          hurtNpc(target, npc.worldX);
+        }
+      }
+      if(npc.hurt) return;                 // frozen during hurt anim
+      if(now >= npc.until){ pickNpcAction(npc, now); }
+      if(npc.speed > 0){
+        npc.worldX += npc.dir * npc.speed * dt;
+        // bounce off world bounds and flip direction
+        if(npc.worldX <= npc.minX){ npc.worldX = npc.minX; npc.dir = 1; applyNpcAnim(npc); }
+        else if(npc.worldX >= npc.maxX){ npc.worldX = npc.maxX; npc.dir = -1; applyNpcAnim(npc); }
+        npc.el.style.left = npc.worldX + "px";
+      }
+    });
+  }
 
   /* Animation state machine */
   function setAnimState(state){
@@ -308,6 +484,19 @@
       const r = b.getBoundingClientRect();
       const overlap = r.right > x0 && r.left < x1 && r.bottom > y0 && r.top < y1;
       if(overlap) hitBrick(b);
+    });
+    // Hit any city NPC close in front of the player. Sprite boxes are 128px
+    // with lots of transparent padding, so compare visible CENTERS, not edges.
+    const playerCX = pr.left + pr.width/2;
+    const HIT_RANGE = 70;   // how far in front the slash reaches (px)
+    npcs.slice().forEach(npc=>{
+      if(npc.hurt || npc.dead) return;
+      const r = npc.el.getBoundingClientRect();
+      const npcCX = r.left + r.width/2;
+      const dx = npcCX - playerCX;
+      const inFront = facing>0 ? (dx > -10 && dx < HIT_RANGE) : (dx < 10 && dx > -HIT_RANGE);
+      // push away in the player's facing direction
+      if(inFront) hurtNpc(npc, npc.worldX - facing);
     });
   }
 
@@ -358,16 +547,23 @@
     const maxScroll = track.offsetHeight - vh;
     const rawP = maxScroll>0 ? (window.scrollY/maxScroll) : 0;
 
-    // For most of the scroll the camera moves and the hero stays at ~26%.
-    // For the final stretch the camera LOCKS and the hero walks right into the flag.
+    // Hero rest position (screen-x) while the camera scrolls the world.
+    const REST_X = vw*0.26;
+    // START_SPLIT: first slice = camera LOCKED at 0, hero walks IN from the left edge.
+    // END_SPLIT:   last slice  = camera LOCKED at end, hero walks OUT to the flag.
     let avatarX;
-    if(rawP <= END_SPLIT){
-      cameraX = (rawP/END_SPLIT) * worldLength;
-      avatarX = vw*0.26;
+    if(rawP < START_SPLIT){
+      // camera pinned at world start; hero strolls from the very left edge to REST_X
+      cameraX = 0;
+      const t = rawP/START_SPLIT; // 0..1
+      avatarX = vw*0.06 + t*(REST_X - vw*0.06);
+    } else if(rawP <= END_SPLIT){
+      cameraX = ((rawP - START_SPLIT)/(END_SPLIT - START_SPLIT)) * worldLength;
+      avatarX = REST_X;
     } else {
       cameraX = worldLength;
       const t = (rawP - END_SPLIT)/(1 - END_SPLIT); // 0..1
-      avatarX = vw*0.26 + t*(vw*0.58 - vw*0.26);
+      avatarX = REST_X + t*(vw*0.92 - REST_X);   // walk almost to the right edge
     }
 
     // parallax: scenery layers scroll via background-position, near layer via transform
@@ -445,6 +641,9 @@
       }
     }
 
+    // city pedestrians roam the world
+    updateNpcs(now);
+
     // active billboard (nearest to player)
     let best=null, bestDist=Infinity;
     billboards.forEach(b=>{
@@ -473,6 +672,17 @@
   }
 
   let coinTotal=0;
+  // Spawn a collectable coin at world x (dropped by a killed NPC).
+  function dropCoin(wx){
+    const y = 26;   // low — grabbed by walking past
+    const c = document.createElement("div");
+    c.className = "coin pixel drop";
+    c.textContent = "$";
+    c.style.cssText = `left:${wx}px;bottom:calc(var(--ground-h) + ${y}px);`;
+    nearInner.appendChild(c);
+    coins.push({ el:c, worldX:wx, y:y, collected:false });
+  }
+
   function collectCoin(c){
     c.collected=true;c.el.classList.add("collected");
     coinTotal++;coinCountEl.textContent=String(coinTotal).padStart(2,"0");
